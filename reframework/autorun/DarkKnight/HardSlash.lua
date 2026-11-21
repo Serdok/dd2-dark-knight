@@ -12,16 +12,24 @@ skillHandler.skills.DarkKnight.HardSlash = {
         helpText = "Press the assigned button.",
         description = "Basic attack string. Swing once horizontally and once vertically.",
     },
+    conditions = { sameMove = true },
     sequence = {
         {
             motionData = { 0, 150, 1705, 0.0, 12.0 }, -- ch00_005_atk_custom_stormslash_1st
             nextFrame = 75,
             softLock = true,
+            lockStamina = true,
+            stamina = { cost = 100.0, frame = 56.0 }, -- 2 frames before the first damage
+            on_start = function(ctx)
+                p.fullLayer:set_MirrorSymmetry(true)
+            end
         },
         {
             motionData = { 0, 150, 1102, 0.0, 12.0 }, -- ch00_005_atk_custom_crescentslash_atk_normal
             nextFrame = 154,
             softLock = true,
+            lockStamina = true,
+            stamina = { cost = 0.0, frame = 35.0 },   -- 2 frames before the first damage
         }
     }
 }
