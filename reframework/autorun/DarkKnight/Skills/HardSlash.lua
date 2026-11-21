@@ -23,7 +23,8 @@ end
 
 skillHandler.skills.DarkKnight.HardSlash = {
     params = {
-        job = 5,
+        job = 9,
+        vocation = "DarkKnight",
         icon = 20,
         type = "New",
         lvl1 = {

@@ -16,9 +16,7 @@ assert(config.NEW_VOCATIONS, "Dark Knight requires Skill Creator NEW_VOCATIONS=t
 ---------------------------------------------------------------------------
 local SKILLS = {
     weapon = { },   -- native weapon skills (CustomSkillJobDefineDictionary)
-    core   = { },   -- core skills (NormalSkillDefineDictionary), e.g. Fighter's minus Tusk Toss
-    actions_from   = 5,  -- basic attacks / moveset copied from this job (1 = Fighter)
-    abilities_from = 5,  -- augments copied from this job
+    core   = { },   -- core skills (NormalSkillDefineDictionary)
 }
 local DUMP_IDS = false
 local JOB = 9
@@ -138,7 +136,14 @@ local function install(gui)
         registry.normalSkills[id] = { job = "Job09", vocation = vocation.key }
     end
     installed_for = gui
-    log.info("[DarkKnight] inventory installed: " .. #SKILLS.core .. " core, " .. #SKILLS.weapon .. " weapon skills")
+    local sc_weapon, sc_core = 0, 0
+    for _, info in pairs(registry.customSkills or {}) do
+        if info.vocation == vocation.key then sc_weapon = sc_weapon + 1 end
+    end
+    for _, info in pairs(registry.normalSkills or {}) do
+        if info.vocation == vocation.key then sc_core = sc_core + 1 end
+    end
+    log.info("[DarkKnight] inventory installed: " .. (#SKILLS.core + sc_core) .. " core, " .. (#SKILLS.weapon + sc_weapon) .. " weapon skills")
 end
 
 local function refresh()
