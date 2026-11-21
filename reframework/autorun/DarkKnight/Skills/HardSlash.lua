@@ -23,11 +23,21 @@ end
 
 skillHandler.skills.DarkKnight.HardSlash = {
     params = {
-        job = 5, icon = 20, type = "New",
-        uiName = "Hard Slash",
-        unlockRank = 1,
-        helpText = "Press the assigned button.",
-        description = "Basic attack string. Swing once horizontally and once vertically.",
+        job = 5,
+        icon = 20,
+        type = "New",
+        lvl1 = {
+            uiName = "Hard Slash",
+            unlockRank = 1,
+            helpText = "Press the assigned button.",
+            description = "Basic attack string. Swing once horizontally and once vertically.",
+        },
+        lvl2 = {
+            uiName = "Syphon Strike",
+            unlockRank = 5,
+            helpText = "Press the assigned button.",
+            description = "A more advanced attack combo. Swing Swing once horizontally and once vertically with dark energy.",
+        }
     },
     conditions = { sameMove = true },
     sequence = {
