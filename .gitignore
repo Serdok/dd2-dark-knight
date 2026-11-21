@@ -1,1 +1,4 @@
-sdk/*
+sdk/
+samples/
+types/dd2/
+deps/

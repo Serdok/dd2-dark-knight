@@ -1,0 +1,9 @@
+{
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "runtime.version": "Lua 5.4",
+  "workspace.library": ["types/reframework", "types/dd2", "deps/SkillCreator", "deps/_NickCore"],
+  "hint.enable": false,
+  "workspace.preloadFileSize": 20000,
+  "workspace.maxPreload": 10000000,
+  "workspace.checkThirdParty": false
+}
