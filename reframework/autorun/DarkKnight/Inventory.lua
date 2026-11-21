@@ -190,7 +190,7 @@ sdk.hook(sdk.find_type_definition("app.ui010201"):get_method("isDisableCustomSki
         s.dark_knight = weapon_set[id] or (custom and custom.vocation == vocation.key) or false
     end,
     function(retval)
-        if thread.get_hook_storage().dark_knight then return sdk.to_ptr(0) end
+        if thread.get_hook_storage().dark_knight then return sdk.to_ptr(false) end
         return retval
     end)
 
