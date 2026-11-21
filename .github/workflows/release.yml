@@ -17,7 +17,7 @@ jobs:
       - name: Check tag matches modinfo.ini version
         id: version
         run: |
-          modinfo=$(find DarkKnight -name modinfo.ini | head -n1)
+          modinfo=reframework/modinfo.ini
           version=$(grep -E '^version=' "$modinfo" | cut -d= -f2 | tr -d '[:space:]')
           tag="${GITHUB_REF_NAME#v}"
           if [ "$version" != "$tag" ]; then
@@ -27,7 +27,8 @@ jobs:
           echo "zip=DarkKnight-v$version.zip" >> "$GITHUB_OUTPUT"
 
       - name: Package
-        run: cd DarkKnight && zip -r "../${{ steps.version.outputs.zip }}" .
+        # Only ship the mod itself; repo files (LICENSE, .github, .idea, sdk, samples...) stay out
+        run: zip -r "${{ steps.version.outputs.zip }}" reframework
 
       - name: Read tag annotation
         run: |
