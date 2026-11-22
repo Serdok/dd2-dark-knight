@@ -136,14 +136,7 @@ local function install(gui)
         registry.normalSkills[id] = { job = "Job09", vocation = vocation.key }
     end
     installed_for = gui
-    local sc_weapon, sc_core = 0, 0
-    for _, info in pairs(registry.customSkills or {}) do
-        if info.vocation == vocation.key then sc_weapon = sc_weapon + 1 end
-    end
-    for _, info in pairs(registry.normalSkills or {}) do
-        if info.vocation == vocation.key then sc_core = sc_core + 1 end
-    end
-    log.info("[DarkKnight] inventory installed: " .. (#SKILLS.core + sc_core) .. " core, " .. (#SKILLS.weapon + sc_weapon) .. " weapon skills")
+    log.info("[DarkKnight] inventory installed: " .. #SKILLS.core .. " core, " .. #SKILLS.weapon .. " weapon skills")
 end
 
 local function refresh()
@@ -188,9 +181,11 @@ sdk.hook(sdk.find_type_definition("app.ui010201"):get_method("isDisableCustomSki
         local id = sdk.to_int64(args[3])
         local custom = registry.customSkills and registry.customSkills[id]
         s.dark_knight = weapon_set[id] or (custom and custom.vocation == vocation.key) or false
+        log.info(("[DarkKnight] isDisableCustomSkill id=%d custom=%s vocation=%s dk=%s"):format(
+            id, tostring(custom ~= nil), tostring(custom and custom.vocation), tostring(s.dark_knight)))
     end,
     function(retval)
-        if thread.get_hook_storage().dark_knight then return sdk.to_ptr(false) end
+        if thread.get_hook_storage().dark_knight then return sdk.to_ptr(0) end
         return retval
     end)
 
