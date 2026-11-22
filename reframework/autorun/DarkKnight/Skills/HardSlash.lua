@@ -43,20 +43,16 @@ skillHandler.skills.DarkKnight.HardSlash = {
     conditions = { sameMove = true },
     sequence = {
         {
-            motionData = { 0, 150, 1705, 0.0, 12.0 }, -- ch00_005_atk_custom_stormslash_1st
-            nextFrame = 75,
+            motionData = { 0, 150, 1706, 20.0, 25.0 }, -- ch00_005_atk_custom_stormslash_2nd
+            nextFrame = 62,
             softLock = true,
-            on_start = safe("on_start", function(ctx)
-                p.fullLayer:set_MirrorSymmetry(true)
-            end),
-            on_end = safe("on_end", function(ctx)
-                p.fullLayer:set_MirrorSymmetry(false)
-            end),
+            speed = 1.2,
         },
         {
-            motionData = { 0, 150, 1102, 0.0, 12.0 }, -- ch00_005_atk_custom_crescentslash_atk_normal
+            motionData = { 0, 150, 1102, 10.0, 25.0 }, -- ch00_005_atk_custom_crescentslash_atk_normal
             nextFrame = 154,
             softLock = true,
+            speed = 1.1,
         }
     }
 }
