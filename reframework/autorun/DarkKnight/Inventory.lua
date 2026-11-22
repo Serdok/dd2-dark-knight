@@ -22,8 +22,10 @@ local DUMP_IDS = false
 local JOB = 9
 
 ---------------------------------------------------------------------------
-local create = sdk.find_type_definition("System.Activator"):get_method("CreateInstance")
-local msg_get = sdk.find_type_definition("via.gui.message"):get_method("get(System.Guid)")
+local create    = sdk.find_type_definition("System.Activator"):get_method("CreateInstance")
+local msg_get   = sdk.find_type_definition("via.gui.message"):get_method("get(System.Guid)")
+local array_copy = sdk.find_type_definition("System.Array")
+    :get_method("Copy(System.Array, System.Int32, System.Array, System.Int32, System.Int32)")
 
 local function get(dict, key)
     if dict and dict:ContainsKey(key) then return dict[key] end
@@ -135,6 +137,31 @@ local function install(gui)
     for _, id in ipairs(SKILLS.core) do
         registry.normalSkills[id] = { job = "Job09", vocation = vocation.key }
     end
+
+    -- Extend JobEnumTableByCustomSkillId so the assignment picker can list our skills.
+    local jet = gui:get_field("JobEnumTableByCustomSkillId")
+    if jet then
+        local maxID = jet:get_size() - 1
+        for id, info in pairs(registry.customSkills or {}) do
+            if info.vocation == vocation.key then maxID = math.max(maxID, id) end
+        end
+        if maxID >= jet:get_size() then
+            local elem_name = jet:GetType():GetElementType():get_FullName()
+            local new_jet = sdk.create_managed_array(sdk.find_type_definition(elem_name), maxID + 1):add_ref()
+            array_copy:call(nil, jet, 0, new_jet, 0, jet:get_size())
+            gui:set_field("JobEnumTableByCustomSkillId", new_jet)
+            jet = new_jet
+        end
+        local elem_name = jet:GetType():GetElementType():get_FullName()
+        for id, info in pairs(registry.customSkills or {}) do
+            if info.vocation == vocation.key and id < jet:get_size() and not jet[id] then
+                local jobs = sdk.create_instance(elem_name):add_ref()
+                jobs:call("Add", 9)
+                jet[id] = jobs
+            end
+        end
+    end
+
     installed_for = gui
     log.info("[DarkKnight] inventory installed: " .. #SKILLS.core .. " core, " .. #SKILLS.weapon .. " weapon skills")
 end
@@ -188,6 +215,35 @@ sdk.hook(sdk.find_type_definition("app.ui010201"):get_method("isDisableCustomSki
         if thread.get_hook_storage().dark_knight then return sdk.to_ptr(0) end
         return retval
     end)
+
+-- When the picker queries a skill by weapon job (5), redirect to our SkillCreator definition (job 9).
+local skill_define_method = sdk.find_type_definition("app.GuiManager")
+    :get_method("getCustomSkillDefine(app.Character.JobEnum, app.HumanCustomSkillID, app.HumanCustomSkillLevelNo)")
+if skill_define_method then
+    sdk.hook(skill_define_method,
+        function(args)
+            local s = thread.get_hook_storage(); s.dk_define_id = nil
+            local id = sdk.to_int64(args[4]) & 0xFFFFFFFF
+            local custom = registry.customSkills and registry.customSkills[id]
+            if custom and custom.vocation == vocation.key then
+                s.dk_define_id    = id
+                s.dk_define_level = sdk.to_int64(args[5]) & 0xFFFFFFFF
+            end
+        end,
+        function(retval)
+            local s = thread.get_hook_storage()
+            local id = s.dk_define_id
+            if not id or sdk.to_int64(retval) ~= 0 then return retval end
+            local gui = sdk.get_managed_singleton("app.GuiManager")
+            local all = gui and gui.CustomSkillDefineDictionary
+            local levels = all and all:ContainsKey(id) and all:get_Item(id)
+            if not levels then return retval end
+            local level = s.dk_define_level
+            local entry = (levels:ContainsKey(level) and levels:get_Item(level))
+                or (levels:ContainsKey(1) and levels:get_Item(1))
+            return entry and sdk.to_ptr(entry) or retval
+        end)
+end
 
 re.on_script_reset(function()
     restore()
